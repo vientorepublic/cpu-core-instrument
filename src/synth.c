@@ -39,6 +39,7 @@ static float tri_from_phase(float phase) {
 
 void synth_init(SynthState* synth, float sample_rate) {
   synth->sample_rate = sample_rate;
+  synth->master_gain = 1.0f;
   for (int i = 0; i < MAX_CORES; ++i) {
     synth->phase[i] = 0.0f;
     synth->sub_phase[i] = 0.0f;
@@ -48,6 +49,13 @@ void synth_init(SynthState* synth, float sample_rate) {
     synth->hp_state[i] = 0.0f;
     synth->hp_input[i] = 0.0f;
   }
+}
+
+void synth_set_master_gain(SynthState* synth, float master_gain) {
+  if (!synth) {
+    return;
+  }
+  synth->master_gain = clampf(master_gain, 0.0f, 2.0f);
 }
 
 void synth_render(SynthState* synth, const CoreUsageFrame* frame, float* out_l,
@@ -118,7 +126,7 @@ void synth_render(SynthState* synth, const CoreUsageFrame* frame, float* out_l,
       synth->sub_phase[c] = sub_phase;
     }
 
-    float out_gain = 0.92f;
+    float out_gain = 0.92f * synth->master_gain;
     out_l[i] = tanhf(mix_l * 1.35f) * out_gain;
     out_r[i] = tanhf(mix_r * 1.35f) * out_gain;
   }

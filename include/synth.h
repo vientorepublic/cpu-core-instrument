@@ -7,6 +7,7 @@
 
 typedef struct {
   float sample_rate;
+  float master_gain;
   float phase[MAX_CORES];
   float sub_phase[MAX_CORES];
   float current_freq[MAX_CORES];
@@ -17,6 +18,7 @@ typedef struct {
 } SynthState;
 
 void synth_init(SynthState* synth, float sample_rate);
+void synth_set_master_gain(SynthState* synth, float master_gain);
 void synth_render(SynthState* synth, const CoreUsageFrame* frame, float* out_l,
                   float* out_r, size_t frames);
 

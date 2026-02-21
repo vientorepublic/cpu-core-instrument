@@ -25,6 +25,17 @@ cmake --build build
 ./build/cpu_core_instrument
 ```
 
+볼륨을 지정하려면 실행 시 옵션을 넘길 수 있습니다.
+
+```bash
+./build/cpu_core_instrument --volume 0.8
+# 또는
+./build/cpu_core_instrument -v 1.2
+```
+
+- 범위: `0.0` ~ `2.0`
+- 기본값: `1.0`
+
 실행 중 `Ctrl+C`로 종료합니다.
 
 ## macOS Notes

@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -10,6 +11,49 @@
 #include "shared_state.h"
 
 static volatile sig_atomic_t g_running = 1;
+
+static void print_usage(const char* program_name) {
+  printf("Usage: %s [--volume <0.0-2.0>]\n", program_name);
+  printf("       %s [-v <0.0-2.0>]\n", program_name);
+}
+
+static int parse_args(int argc, char** argv, float* out_volume) {
+  *out_volume = 1.0f;
+
+  for (int i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+      print_usage(argv[0]);
+      return 1;
+    }
+
+    if (strcmp(argv[i], "--volume") == 0 || strcmp(argv[i], "-v") == 0) {
+      if (i + 1 >= argc) {
+        fprintf(stderr, "Missing value for %s\n", argv[i]);
+        return -1;
+      }
+
+      char* end = NULL;
+      float value = strtof(argv[i + 1], &end);
+      if (end == argv[i + 1] || (end && *end != '\0')) {
+        fprintf(stderr, "Invalid volume: %s\n", argv[i + 1]);
+        return -1;
+      }
+      if (value < 0.0f || value > 2.0f) {
+        fprintf(stderr, "Volume out of range (0.0 - 2.0): %s\n", argv[i + 1]);
+        return -1;
+      }
+
+      *out_volume = value;
+      ++i;
+      continue;
+    }
+
+    fprintf(stderr, "Unknown option: %s\n", argv[i]);
+    return -1;
+  }
+
+  return 0;
+}
 
 static void on_sigint(int sig) {
   (void)sig;
@@ -29,7 +73,17 @@ static void shared_state_write(SharedCoreState* state, const float* usage,
   atomic_store_explicit(&state->seq, seq + 1ULL, memory_order_release);
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+  float volume = 1.0f;
+  int parse_result = parse_args(argc, argv, &volume);
+  if (parse_result > 0) {
+    return 0;
+  }
+  if (parse_result < 0) {
+    print_usage(argv[0]);
+    return 1;
+  }
+
   signal(SIGINT, on_sigint);
 
   CpuSampler* sampler = cpu_sampler_create();
@@ -52,6 +106,8 @@ int main(void) {
     cpu_sampler_destroy(sampler);
     return 1;
   }
+
+  audio_engine_set_volume(audio, volume);
 
   if (audio_engine_start(audio) != 0) {
     fprintf(stderr, "Failed to start audio engine\n");

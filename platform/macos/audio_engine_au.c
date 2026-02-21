@@ -144,3 +144,10 @@ void audio_engine_stop(AudioEngine* engine) {
   }
   AudioOutputUnitStop(engine->output_unit);
 }
+
+void audio_engine_set_volume(AudioEngine* engine, float volume) {
+  if (!engine) {
+    return;
+  }
+  synth_set_master_gain(&engine->synth, volume);
+}
