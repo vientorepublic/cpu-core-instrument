@@ -31,10 +31,16 @@ cmake --build build
 ./build/cpu_core_instrument --volume 0.8
 # 또는
 ./build/cpu_core_instrument -v 1.2
+# 새로고침 빈도(Hz) 지정
+./build/cpu_core_instrument --refresh-hz 30
+# 옵션 조합
+./build/cpu_core_instrument -v 0.8 -f 30
 ```
 
 - 범위: `0.0` ~ `2.0`
 - 기본값: `1.0`
+- 새로고침 빈도 범위: `1` ~ `120` Hz
+- 새로고침 빈도 기본값: `20` Hz
 
 실행 중 `Ctrl+C`로 종료합니다.
 
