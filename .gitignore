@@ -5,6 +5,7 @@
 
 # CMake / build outputs
 build/
+build_linux/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt

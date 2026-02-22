@@ -6,18 +6,30 @@ CPU 논리 코어 사용량을 읽어 코어별로 음을 생성하는 실시간
 
 ## Features
 
-- Mach API 기반 코어별 CPU 사용률 샘플링
+- macOS: Mach API 기반 코어별 CPU 사용률 샘플링 및 Core Audio AudioUnit 저지연 출력
+- Linux: `/proc/stat` 기반 코어별 CPU 사용률 샘플링 및 ALSA 오디오 출력
 - EMA 스무딩 + 바닥값 처리
 - 마이너 펜타토닉 기반 피치 매핑
-- Core Audio AudioUnit 저지연 출력
 - 터미널 코어별 실시간 텍스트 그래프
 
 ## Build
+
+### macOS
 
 ```bash
 cmake -S . -B build
 cmake --build build
 ```
+
+### Linux (Cross-compilation via Docker)
+
+macOS 환경에서 Linux용 실행 파일을 빌드하려면 Docker를 사용합니다.
+
+```bash
+./build_linux.sh
+```
+
+빌드가 완료되면 `build_linux/cpu_core_instrument` 파일이 생성됩니다.
 
 ## Run
 
@@ -37,15 +49,16 @@ cmake --build build
 ./build/cpu_core_instrument -v 0.8 -f 30
 ```
 
-- 범위: `0.0` ~ `2.0`
-- 기본값: `1.0`
+- 볼륨 범위: `0.0` ~ `2.0`
+- 볼륨 기본값: `0.5`
 - 새로고침 빈도 범위: `1` ~ `120` Hz
-- 새로고침 빈도 기본값: `20` Hz
+- 새로고침 빈도 기본값: `3` Hz
 
 실행 중 `Ctrl+C`로 종료합니다.
 
-## macOS Notes
+## Notes
 
 - 오디오 엔진은 기본 출력 디바이스를 사용합니다.
 - 초기 MVP는 논리 코어 단위 매핑입니다.
 - 실시간 오디오 콜백에서는 메모리 할당/락을 피하는 구조를 사용합니다.
+- Linux 환경에서는 ALSA 라이브러리(`libasound2`)가 필요합니다.

@@ -1,7 +1,9 @@
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "audio_engine.h"
@@ -20,8 +22,8 @@ static void print_usage(const char* program_name) {
 
 static int parse_args(int argc, char** argv, float* out_volume,
                       int* out_refresh_hz) {
-  *out_volume = 1.0f;
-  *out_refresh_hz = 20;
+  *out_volume = 0.5f;
+  *out_refresh_hz = 3;
 
   for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -100,8 +102,8 @@ static void shared_state_write(SharedCoreState* state, const float* usage,
 }
 
 int main(int argc, char** argv) {
-  float volume = 1.0f;
-  int refresh_hz = 20;
+  float volume = 0.5f;
+  int refresh_hz = 3;
   int parse_result = parse_args(argc, argv, &volume, &refresh_hz);
   if (parse_result > 0) {
     return 0;
@@ -111,7 +113,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  useconds_t refresh_sleep_us = (useconds_t)(1000000 / refresh_hz);
+  unsigned int refresh_sleep_us = (unsigned int)(1000000 / refresh_hz);
 
   signal(SIGINT, on_sigint);
 
